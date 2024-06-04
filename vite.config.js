@@ -6,5 +6,13 @@ export default defineConfig({
   plugins: [react()],
   test: {
     environment: 'jsdom',
+  },
+  build: {
+    rollupOptions: {
+      input: {
+        main: 'index.html',
+        about: 'about.html',
+      }
+    }
   }
 })
