@@ -33,4 +33,4 @@ jobs:
         run: npm run build
       - name: Upload
         run: |
-          aws s3 sync dist/ s3://$BUCKET/${{ github.sha }}
+          aws s3 cp dist/ s3://$BUCKET/${{ github.sha }} --recursive
