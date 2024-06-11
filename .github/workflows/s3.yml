@@ -2,10 +2,14 @@ name: Deploy to S3
 
 on:
   workflow_dispatch:
-
+    inputs:
+      commit_sha:
+        description: 'The commit SHA to deploy'
+        required: true
 
 env:
-  BUCKET: app-s3.codesoom.shop
+  FROM_BUCKET: app-s3-build
+  TO_BUCKET: app-s3.codesoom.shop
 
 jobs:
   deploy:
@@ -13,24 +17,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
       - name: Configure AWS Credentials 2
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-2
-      - name: Use Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20.13.1
-          cache: 'npm'
-      - name: Install dependencies
-        run: npm install
-      - name: Build
-        run: npm run build
       - name: Upload
         run: |
-          aws s3 sync dist/ s3://$BUCKET --exclude "*.html"
-          aws s3 sync dist/ s3://$BUCKET --exclude "*" --include "*.html" --cache-control "no-store"
+          aws s3 sync s3://$FROM_BUCKET/${{ github.event.inputs.commit_sha }} s3://$TO_BUCKET/ --exclude "*.html"
+          aws s3 sync s3://$FROM_BUCKET/${{ github.event.inputs.commit_sha }} s3://$TO_BUCKET/ --exclude "*" --include "*.html" --cache-control "no-store"
